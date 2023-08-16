@@ -1,7 +1,7 @@
 name: Java CI
 on: push
 env: # Set the secret as an input
-  docker_username: ${{ github.actor.toLowerCase() }}
+  docker_username: ${{ github.actor }}
   docker_password: ${{ secrets.GITHUB_TOKEN }}
   GIT_COMMIT: ${{ github.sha }}
 jobs:
@@ -46,8 +46,6 @@ jobs:
       with:
         name: code
         path: .
-    - name: Change String Case
-      uses: ASzc/change-string-case-action@v5
     - name: build docker
       run: chmod +x ci/build-docker.sh && ci/build-docker.sh
     - name: push docker

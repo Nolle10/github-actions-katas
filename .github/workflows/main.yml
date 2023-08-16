@@ -1,4 +1,4 @@
-name: hello-world
+name: Java CI
 on: push
 env: # Set the secret as an input
   docker_username: ${{ github.actor }}
@@ -6,49 +6,47 @@ env: # Set the secret as an input
   GIT_COMMIT: ${{ github.sha }}
 jobs:
   Clone-down:
-    name: Clown down repo
+    name: Clone down repo
     runs-on: ubuntu-latest
     container: gradle:6-jdk11
     steps:
-      - uses: actions/checkout@v2
-      - name: Upload
-        uses: actions/upload-artifact@v3
-        with:
-          name: code
-          path: .
-        
+    - uses: actions/checkout@v3
+    - name: Upload Repo
+      uses: actions/upload-artifact@v3
+      with:
+        name: code
+        path: .
   Build:
-     name: Build
-     runs-on: ubuntu-latest
-     needs: Clone-down
-     container: gradle:6-jdk11
-     steps:
-       - name: Download Code
-         uses: actions/download-artifact@v3
-         with:
-          name: code
-          path: .
-       - name: Build with Gradle
-         run: chmod +x ci/build-app.sh && ci/build-app.sh
-       - name: Test with Gradle
-         run: chmod +x ci/unit-test-app.sh && ci/unit-test-app.sh
-       - name: Upload repo
-         uses: actions/upload-artifact@v3
-         with: 
-           name: code
-           path: .
+    runs-on: ubuntu-latest
+    needs: Clone-down
+    container: gradle:6-jdk11
+    steps:
+    - name: Download code
+      uses: actions/download-artifact@v3
+      with:
+        name: code
+        path: . 
+    - name: Build with Gradle
+      run: chmod +x ci/build-app.sh && ci/build-app.sh
+    - name: Test with Gradle
+      run: chmod +x ci/unit-test-app.sh && ci/unit-test-app.sh
+    - name: Upload Repo
+      uses: actions/upload-artifact@v3
+      with:
+        name: code
+        path: .
   Docker-image:
     runs-on: ubuntu-latest
     needs: [Build]
     permissions:
       packages: write
     steps:
-      - name: Download code
-        uses: actions/download-artifact@v3
-        with:
-          name: code
-          path: .
-      - name: Build Docker
-        run: chmod +x ci/build-docker.sh && ci/build-docker.sh
-      - name: Push Docker
-        run: chmod +x ci/push-docker.sh && ci/push-docker.sh
+    - name: Download code
+      uses: actions/download-artifact@v3
+      with:
+        name: code
+        path: .
+    - name: build docker
+      run: chmod +x ci/build-docker.sh && ci/build-docker.sh
+    - name: push docker
+      run: chmod +x ci/push-docker.sh && ci/push-docker.sh
